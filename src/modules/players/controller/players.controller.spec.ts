@@ -1,4 +1,11 @@
-export const mockPlayers = [
+import { Test, TestingModule } from '@nestjs/testing';
+import { PlayersController } from './players.controller';
+import { PlayersService } from '../services/players.service';
+
+describe('PlayersController', () => {
+  let playersController: PlayersController;
+  let playersService: PlayersService;
+   const mockPlayers = [
     {
         "id": 52,
         "firstname": "Novak",
@@ -100,3 +107,40 @@ export const mockPlayers = [
         }
       }
     ]
+  beforeEach(async () => {
+    const app: TestingModule = await Test.createTestingModule({
+      controllers: [PlayersController],
+      providers: [
+        PlayersService,
+        {
+          provide: PlayersService,
+          useValue: {
+            findAll: jest.fn().mockReturnValue(mockPlayers), 
+            findOne: jest.fn().mockReturnValue(mockPlayers[0]), 
+          },
+        },
+      ],
+    }).compile();
+
+    playersController = app.get<PlayersController>(PlayersController);
+    playersService = app.get<PlayersService>(PlayersService);
+  });
+
+  it('should be defined', () => {
+    expect(playersController).toBeDefined();
+  });
+
+  describe('getAllPlayers', () => {
+    it('should return an array of players', async () => {
+      const result = await playersController.getAllPlayers();
+      expect(result).toEqual(mockPlayers);  // Compare with mock data
+    });
+  });
+
+  describe('getPlayerById', () => {
+    it('should return a single player', async () => {
+      const result = await playersController.getPlayerById('1');
+      expect(result).toEqual(mockPlayers[0]); 
+    });
+  });
+});
