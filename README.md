@@ -145,7 +145,7 @@ Cette section vous guidera à travers le processus de déploiement de l'applicat
 
 **Obtenir le pays avec le meilleur ratio de victoires**
 
-- GET `api/stats/best-country`
+- GET `api/stats/ratio`
 
 **Obtenir l'IMC moyen**
 
