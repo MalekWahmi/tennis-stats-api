@@ -155,6 +155,15 @@ Cette section vous guidera à travers le processus de déploiement de l'applicat
 
 - GET `api/stats/median-height`
 
+**Obtenir tous les joueurs triés du meilleur au moins bon.**
+
+- GET `api/players`
+
+**Obtenir un joueur par ID trié.**
+
+- GET `api/players/{id}`
+
+
 ## Tests avec Jest
 
 L'API inclut des tests unitaires pour les contrôleurs.
@@ -164,12 +173,4 @@ Exécuter les Tests:
 ```bash
    npm run test
    ```
-
-**Obtenir tous les joueurs triés du meilleur au moins bon.**
-
-- GET `api/players`
-
-**Obtenir un joueur par ID trié du meilleur au moins bon.**
-
-- GET `api/players/{id}`
 
