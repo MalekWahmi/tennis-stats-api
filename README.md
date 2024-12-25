@@ -155,6 +155,16 @@ Cette section vous guidera à travers le processus de déploiement de l'applicat
 
 - GET `api/stats/median-height`
 
+## Tests avec Jest
+
+L'API inclut des tests unitaires pour les contrôleurs.
+
+Exécuter les Tests:
+
+```bash
+   npm run test
+   ```
+
 **Obtenir tous les joueurs triés du meilleur au moins bon.**
 
 - GET `api/players`
