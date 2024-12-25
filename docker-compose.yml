@@ -1,0 +1,10 @@
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/tennis-stats-api
+    env_file:
+      - .env
+    command: npm run start:prod

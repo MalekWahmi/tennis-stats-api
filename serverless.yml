@@ -1,0 +1,77 @@
+service: tennis-stats-api
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: ${env:AWS_REGION}
+  memorySize: 128 
+  timeout: 10
+  environment:
+    NODE_ENV: ${env:NODE_ENV}
+    AWS_ACCESS_KEY_ID: ${env:AWS_ACCESS_KEY_ID}
+    AWS_SECRET_ACCESS_KEY: ${env:AWS_SECRET_ACCESS_KEY}
+    S3_BUCKET_NAME: ${env:S3_BUCKET_NAME}
+
+functions:
+  getCountryWithBestWinRatio:
+   image:
+      name: tennis-stats-api  # Nom de l'image Docker construite
+    handler: src/handlers/getCountryWithBestWinRatio.handler
+    events:
+      - http:
+          path: api/stats/ratio
+          method: get
+
+  getAverageBMI:
+    handler: src/handlers/getAverageBMI.handler
+    events:
+      - http:
+          path: api/stats/average-bmi
+          method: get
+
+  getMedianHeight:
+    handler: src/handlers/getMedianHeight.handler
+    events:
+      - http:
+          path: api/stats/median-height
+          method: get
+  getAllPlayers:
+    get:
+    handler: src/handlers/getAllPlayers.handler
+    events:
+      - http:
+          path: api/getAllPlayers
+          method: get
+plugins:
+  - serverless-offline
+  - serverless-dotenv-plugin
+
+custom:
+  serverless-offline:
+    httpPort: ${env:OFFLINE_PORT}
+  dotenv:
+    path: .env
+
+resources:
+  Resources:
+    LambdaExecutionRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: 'Allow'
+              Principal:
+                Service: 'lambda.amazonaws.com'
+              Action: 'sts:AssumeRole'
+        Policies:
+          - PolicyName: LambdaExecutionPolicy
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: 'Allow'
+                  Action:
+                    - 'logs:*'
+                  Resource: '*'
