@@ -1,25 +1,35 @@
 # API de Statistiques de Tennis
 
-Le projet Tennis Stats API utilise une architecture modulaire basée sur des microservices, facilitant la gestion des différentes fonctionnalités de l'application. Chaque service (par exemple, récupération des statistiques des joueurs, calcul de l'IMC, etc.) est développé de manière indépendante et déployé sous forme de fonctions AWS Lambda via le Serverless Framework. Cette approche garantit une scalabilité optimale et une gestion simplifiée des mises à jour.
+Le projet **Tennis Stats API** utilise une **architecture modulaire basée sur des microservices**, facilitant la gestion et l'évolution des différentes fonctionnalités. Chaque service est conçu de manière indépendante, ce qui permet une meilleure scalabilité et un déploiement optimisé.
 
-De plus, l'API peut être testée localement à l'aide de Docker Compose, npm ou serverless offline pour simuler l'environnement de production sur votre machine locale. Ce modèle d'architecture modulaire permet de maintenir un code propre, facilement évolutif, tout en garantissant une gestion efficace des services.
+Deux méthodes de déploiement sont proposées :
+1. **Déploiement sur AWS Lambda avec Serverless Framework** (image Docker).
+2. **Déploiement sur une instance EC2 avec Nginx et PM2**.
+
+Vous pouvez également configurer un **nom de domaine personnalisé** pour remplacer l'adresse IP actuelle et activer le **SSL** pour sécuriser vos communications. 
+
+L'API peut être sécurisée avec JWT (JSON Web Token) pour garantir l'accès authentifié aux ressources. Chaque requête devra inclure un token JWT
 
 ---
 
 ## Table des Matières
 
-1. [Fonctionnalités](#fonctionnalités)
-2. [Dépendances](#dépendances)
-3. [Variables d'Environnement](#variables-denvironnement)
-4. [Développement Local](#développement-local)
-5. [Déploiement sur AWS](#déploiement-sur-aws)
-6. [Utilisation](#utilisation)
+1. [Fonctionnalités](#fonctionnalités)  
+2. [Dépendances](#dépendances)  
+3. [Variables d'Environnement](#variables-denvironnement)  
+4. [Développement Local](#développement-local)  
+5. [Déploiement](#déploiement)  
+   - [Méthode 1 : AWS Lambda avec Serverless](#méthode-1--aws-lambda-avec-serverless)  
+   - [Méthode 2 : EC2 avec Nginx et PM2](#méthode-2--ec2-avec-nginx-et-pm2)  
+6. [Utilisation](#utilisation)  
+7. [Tests](#tests)
 
 ---
 
 ## Fonctionnalités
-
-- Calculer l'IMC moyen de tous les joueurs.
+- Retourne tous les joueurs triés par classement.
+- Retourne un joueur spécifique.
+- Calculer l'IMC moyen des joueurs.
 - Trouver la taille médiane des joueurs.
 - Identifier le pays avec le meilleur ratio de victoires.
 
@@ -27,139 +37,149 @@ De plus, l'API peut être testée localement à l'aide de Docker Compose, npm ou
 
 ## Dépendances
 
-Pour exécuter l'API, vous avez besoin des dépendances suivantes :
-
 - [Node.js](https://nodejs.org/) (v20.x ou plus récent)
+- AWS CLI
+- Docker (facultatif)
 - [Serverless Framework](https://www.serverless.com/) (v3 ou plus récent)
-- AWS CLI (configuré avec vos identifiants)
-- Docker (facultatif, pour les tests locaux avec des conteneurs Docker)
+- Nginx et PM2 pour le déploiement sur EC2
 
-Pour installer les dépendances du projet, exécutez :
-
-```bash
-npm install
-```
+---
 
 ## Variables d'Environnement
 
 ```bash
-PORT=<>
-NODE_ENV=<>
-AWS_REGION=<>
-AWS_ACCESS_KEY_ID=<>
-AWS_SECRET_ACCESS_KEY=<>
-S3_BUCKET_NAME=<>
-OFFLINE_PORT=<>
+PORT=<port_local>
+NODE_ENV=<development|production>
+AWS_REGION=<votre_région_aws>
+AWS_ACCESS_KEY_ID=<votre_access_key>
+AWS_SECRET_ACCESS_KEY=<votre_secret_key>
+OFFLINE_PORT=<port_serverless_offline>
 ```
+
+---
 
 ## Développement Local
 
-Vous pouvez démarrer l'application localement de trois manières : en utilisant **Docker**, une exécution classique avec **npm**
+### Avec Docker
+```bash
+docker build -t tennis-stats-api .
+docker-compose up
+```
 
-### Option 1 : Développement avec Docker
+### Sans Docker
+```bash
+npm install
+npm run start:dev
+```
 
-1. **Construire l'image Docker**
+---
 
-   Assurez-vous d'abord que Docker est installé sur votre machine. Ensuite, dans le répertoire de votre projet, exécutez la commande suivante pour construire l'image Docker de l'application :
+## Déploiement
 
+### Méthode 1 : AWS Lambda avec Serverless
+
+1. **Construire l'image Docker** :
    ```bash
    docker build -t tennis-stats-api .
    ```
 
-2. **Démarrer l'application avec Docker Compose**
+2. **Configurer Serverless** : Assurez-vous que `serverless.yml` est correctement configuré.
 
-   Si vous utilisez Docker Compose, vous pouvez démarrer l'application et ses dépendances avec la commande suivante :
-
-   ```bash
-   docker-compose up
-   ```
-
-3. **Accéder à l'application**
-
-   Une fois l'application démarrée, vous pouvez accéder à l'API via `http://localhost:3000` dans votre navigateur ou utiliser un client HTTP comme Postman pour tester les différentes routes de l'API.
-
-### Option 2 : Développement sans Docker (via npm)
-
-Si vous préférez ne pas utiliser Docker, vous pouvez exécuter l'application directement avec npm. Voici les étapes à suivre :
-
-1. **Installer les dépendances**
-
-   ```bash
-   npm install
-   ```
-
-2. **Démarrer l'application avec npm**
-
-   ```bash
-   npm run start:dev
-   ```
-
-   Une fois l'application démarrée, vous pouvez accéder à l'API via `http://localhost:3000` dans votre navigateur ou utiliser un client HTTP pour tester les différentes routes de l'API.
-
-## Déploiement sur AWS avec Serverless Framework et Docker
-
-Cette section vous guidera à travers le processus de déploiement de l'application sur AWS en utilisant **Serverless Framework** avec une image Docker.
-
-### Prérequis
-
-1. **Compte AWS** : Vous devez disposer d'un compte AWS avec les **permissions nécessaires** pour déployer des fonctions Lambda et d'autres ressources comme API Gateway, IAM Roles.
-2. **AWS CLI** : Vous devez installer et configurer l'AWS CLI avec vos **identifiants AWS** (Access Key ID et Secret Access Key). Pour cela, exécutez la commande suivante :
-
-   ```bash
-   aws configure
-   ```
-
-   Cela vous demandera vos identifiants AWS (Access Key et Secret Key) et votre région AWS.
-
-3. **Serverless Framework** : Vous devez installer le Serverless Framework si ce n'est pas déjà fait. Exécutez la commande suivante pour l'installer globalement :
-
-   ```bash
-   npm install -g serverless
-   ```
-
-**_Étapes de Déploiement_**
-
-1. **Construire l'image Docker**
-
-   Dans le répertoire de votre projet, assurez-vous que votre Dockerfile est correctement configuré pour construire l'image de l'application :
-
-   ```bash
-   docker build -t tennis-stats-api .
-   ```
-
-2. **Déployer l'application avec Serverless Framework**
-
-   Une fois l'image Docker construite, vous pouvez déployer l'application sur AWS Lambda en utilisant Serverless Framework.
-
-   **Configurer Serverless** : Assurez-vous que votre fichier `serverless.yml` est correctement configuré pour utiliser l'image Docker et déployer la fonction Lambda.
-
-3. **Déployer l'application**
-
-   Une fois que votre fichier `serverless.yml` est prêt, déployez l'application sur AWS avec la commande suivante :
-
+3. **Déployer** :
    ```bash
    serverless deploy
    ```
 
+### Méthode 2 : EC2 avec Nginx et PM2
+
+1. **Connectez-vous à votre instance EC2** :
+   ```bash
+   ssh -i "votre_clé.pem" ec2-user@votre_adresse_ip
+   ```
+
+2. **Installer les dépendances** :
+   Pour installer les dépendances sur votre instance EC2 avec Nginx, Node.js, npm, et PM2, voici les commandes à exécuter une par une :
+
+1. **Mettre à jour les paquets disponibles :**
+
+   ```bash
+   sudo apt update
+   ```
+
+2. **Installer Nginx :**
+
+   ```bash
+   sudo apt install nginx -y
+   ```
+
+3. **Installer Node.js :**
+
+   ```bash
+   curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+   sudo apt install nodejs -y
+   ```
+
+4. **Installer npm (si ce n'est pas déjà installé avec Node.js) :**
+
+   ```bash
+   sudo apt install npm -y
+   ```
+
+5. **Installer PM2 pour gérer votre application Node.js :**
+
+   ```bash
+   sudo npm install -g pm2
+   ```
+
+3. **Configurer l'application** :
+   - Clonez votre dépôt :
+     ```bash
+     git clone https://github.com/MalekWahmi/tennis-stats-api.git
+     cd tennis-stats-api
+     npm install
+     pm2 start npm --name tennis-stats-api -- start
+     ```
+
+4. **Configurer Nginx** :
+   Modifiez le fichier de configuration Nginx :
+   ```bash
+   sudo nano /etc/nginx/sites-available/tennis-stats-api
+   ```
+   Ajoutez :
+   ```
+   server {
+       listen 80;
+       server_name votre_domaine_ou_ip;
+
+       location / {
+           proxy_pass http://localhost:3000;
+           proxy_http_version 1.1;
+           proxy_set_header Upgrade $http_upgrade;
+           proxy_set_header Connection 'upgrade';
+           proxy_set_header Host $host;
+           proxy_cache_bypass $http_upgrade;
+       }
+   }
+   ```
+
+5. **Redémarrez Nginx** :
+   ```bash
+   sudo ln -s /etc/nginx/sites-available/tennis-stats-api /etc/nginx/sites-enabled/
+   sudo systemctl restart nginx
+   ```
+
 ## Utilisation
+- **Players** : `GET /api/players`
+- **Player by id** : `GET /api/players/{id}`
+- **IMC moyen** : `GET /api/stats/average-bmi`
+- **Taille médiane** : `GET /api/stats/median-height`
+- **Pays avec le meilleur ratio** : `GET /api/stats/ratio`
 
-**Obtenir le pays avec le meilleur ratio de victoires**
+---
 
-- GET `api/stats/best-country`
+## Tests
 
-**Obtenir l'IMC moyen**
-
-- GET `api/stats/average-bmi`
-
-**Obtenir la taille médiane**
-
-- GET `api/stats/median-height`
-
-**Obtenir tous les joueurs triés du meilleur au moins bon.**
-
-- GET `api/players`
-
-**Obtenir un joueur par ID trié du meilleur au moins bon.**
-
-- GET `api/players/{id}`
-
+Exécuter les tests unitaires avec Jest :
+```bash
+npm run test
+```
