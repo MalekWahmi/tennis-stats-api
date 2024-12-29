@@ -6,11 +6,15 @@ Deux méthodes de déploiement sont proposées :
 1. **Déploiement sur AWS Lambda avec Serverless Framework** (image Docker).
 2. **Déploiement sur une instance EC2 avec Nginx et PM2**.
 
-Vous pouvez également configurer un **nom de domaine personnalisé** pour remplacer l'adresse IP actuelle et activer le **SSL** pour sécuriser vos communications. 
+Vous pouvez également configurer un **nom de domaine personnalisé** pour remplacer l'adresse IP actuelle et activer le **SSL** pour sécuriser vos communications.
 
-L'API peut être sécurisée avec JWT (JSON Web Token) pour garantir l'accès authentifié aux ressources. Chaque requête devra inclure un token JWT
+L'API peut être sécurisée avec JWT **(JSON Web Token)** pour garantir l'accès authentifié aux ressources. Chaque requête devra inclure un token JWT.
 
----
+Pour automatiser le processus de **déploiement continu**, vous pouvez utiliser **GitHub Actions** ou **Jenkins**. Ces outils permettent d'automatiser les tests, la construction et le déploiement de l'application, assurant ainsi un pipeline **CI/CD** fluide .
+
+Accédez à l'API déployée sur l'instance EC2 via le lien suivant exemple :  
+[API de Statistiques de Tennis](http://54.173.13.92:3000/api/players)
+
 
 ## Table des Matières
 
@@ -132,7 +136,7 @@ npm run start:dev
    ```
 
 3. **Configurer l'application** :
-   - Clonez votre dépôt :
+   - Clonez l application :
      ```bash
      git clone https://github.com/MalekWahmi/tennis-stats-api.git
      cd tennis-stats-api
@@ -171,9 +175,9 @@ npm run start:dev
 ## Utilisation
 - **Players** : `GET /api/players`
 - **Player by id** : `GET /api/players/{id}`
+- **Pays avec le meilleur ratio** : `GET /api/stats/ratio`
 - **IMC moyen** : `GET /api/stats/average-bmi`
 - **Taille médiane** : `GET /api/stats/median-height`
-- **Pays avec le meilleur ratio** : `GET /api/stats/ratio`
 
 ---
 
